@@ -1,15 +1,19 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import io from 'socket.io-client'
 import UploadData from './UploadData/UploadData';
 import axios from 'axios'
 import UserFiles from './userfiles/UserFiles';
+import Web3 from 'web3';
 
 const id = uuid().slice(0, 16);
+
+const web3 = new Web3(window.ethereum)
 
 const StoreData = () => {
     const socketRef = useRef(null)
     const folderHandle = useRef(null)
+    const [userId, setUserId] = useState(null)
 
     const onClickHandler = async () => {
         folderHandle.current = await window.showDirectoryPicker({ mode : 'readwrite' })
@@ -26,72 +30,89 @@ const StoreData = () => {
     }
 
     useEffect(() => {
-        console.log("first")
-        // socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
-        // socketRef.current = io.connect(`http://127.0.0.1:8081`)
-        socketRef.current = io.connect()
+        const eth = window.ethereum;
+        const temp = async () => {
+            try {
+                const accounts = await eth.request({
+                    method : 'eth_requestAccounts'
+                })
+                setUserId(accounts[0])
+            } catch(err) {
+                console.log(err)
+            }
+        }
+        temp()
+    }, [])
 
-        console.log("second")
-        console.log(socketRef.current)
+    useEffect(() => {
+        if(userId != null) {
+            console.log("first")
+            // socketRef.current = io.connect("https://my-app-a0p5.onrender.com:10000")
+            // socketRef.current = io.connect(`http://127.0.0.1:8081`)
+            socketRef.current = io.connect()
 
-        socketRef.current.on('connect', () => {
-            console.log('Connected to the Server')
+            console.log("second")
+            console.log(socketRef.current)
 
-            setTimeout(() => {
-                socketRef.current.emit('id', JSON.stringify({
-                    content : id
-                }))
-            }, 1000)
-        })
+            socketRef.current.on('connect', () => {
+                console.log('Connected to the Server')
 
-        socketRef.current.on('storeData', async (data) => {
-            const shard = JSON.parse(data)
+                setTimeout(() => {
+                    socketRef.current.emit('id', JSON.stringify({
+                        content : id
+                    }))
+                }, 1000)
+            })
 
-            console.log('Message from server received')
-            console.log(shard)
+            socketRef.current.on('storeData', async (data) => {
+                const shard = JSON.parse(data)
 
-            if(folderHandle != null) {
-                console.log(folderHandle.current)
-                const newFileHandle = await folderHandle.current.getFileHandle(shard.id, { create : true })
+                console.log('Message from server received')
+                console.log(shard)
 
-                const writable = await newFileHandle.createWritable()
+                if(folderHandle != null) {
+                    console.log(folderHandle.current)
+                    const newFileHandle = await folderHandle.current.getFileHandle(shard.id, { create : true })
 
-                await writable.write(JSON.stringify(shard))
+                    const writable = await newFileHandle.createWritable()
 
-                await writable.close()
-            } else console.log('Please Grant The Necessary Permissions.')
-        })
+                    await writable.write(JSON.stringify(shard))
 
-        socketRef.current.on('serverRequestData', async (data) => {
-            const shardId = data.id
-            const callback = data.callback
+                    await writable.close()
+                } else console.log('Please Grant The Necessary Permissions.')
+            })
 
-            if(folderHandle != null) {
-                try {
-                    let fileHandle = await folderHandle.current.getFileHandle(shardId, { create : false })
-                    console.log(fileHandle)
-                    const file = await fileHandle.getFile()
-                    const contents = await file.text()
-                    
-                    socketRef.current.emit(callback, JSON.parse(contents))
-                } catch(err) {
-                    console.log(err.message)
-                }
-            } else console.log('Please Grant The Necessary Permissions.')
-        })
+            socketRef.current.on('serverRequestData', async (data) => {
+                const shardId = data.id
+                const callback = data.callback
 
-        socketRef.current.on('disconnect', () => {
-            console.log('Disconnectd from Socket Server')
-        })
+                if(folderHandle != null) {
+                    try {
+                        let fileHandle = await folderHandle.current.getFileHandle(shardId, { create : false })
+                        console.log(fileHandle)
+                        const file = await fileHandle.getFile()
+                        const contents = await file.text()
+                        
+                        socketRef.current.emit(callback, JSON.parse(contents))
+                    } catch(err) {
+                        console.log(err.message)
+                    }
+                } else console.log('Please Grant The Necessary Permissions.')
+            })
 
-        window.addEventListener('beforeunload', (event) => {
-            socketRef.current.emit('beforeConnectionClose', JSON.stringify({
-                content: id
+            socketRef.current.on('disconnect', () => {
+                console.log('Disconnectd from Socket Server')
+            })
+
+            window.addEventListener('beforeunload', (event) => {
+                socketRef.current.emit('beforeConnectionClose', JSON.stringify({
+                    content: id
             }))
 
-            socketRef.current.disconnect()
-        })
-    }, []);
+                socketRef.current.disconnect()
+            })
+        }
+    }, [userId]);
 
     return (
         <div className="StoreData">
