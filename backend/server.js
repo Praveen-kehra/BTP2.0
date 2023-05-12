@@ -67,7 +67,7 @@ var current = new Map();
 //only one file distribute query should be run at a time, so as to avoid
 //editing of queue data structure by multiple actors
 //client Map should remain same while function is running
-function distributeData(userId, dataStore, fileName) {
+async function distributeData(userId, dataStore, fileName) {
     //need to generate ids for file and its shards
     // console.log(fileNames)
     const fileId = uuid().slice(0, 20)
