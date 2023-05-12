@@ -36,7 +36,10 @@ const StoreData = () => {
                 const accounts = await eth.request({
                     method : 'eth_requestAccounts'
                 })
-                setUserId(accounts[0])
+                if(accounts && accounts[0]) {
+                    console.log(accounts[0])
+                    setUserId(accounts[0])
+                }
             } catch(err) {
                 console.log(err)
             }
