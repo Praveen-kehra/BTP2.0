@@ -3,11 +3,11 @@ import FileLink from '../fileLink/FileLink';
 import axios from 'axios';
 
 export default function UserFiles(props) {
-  const userAddress = useRef(props.userAddress)
+  const userAddress = props.userAddress
   const [files, setFiles] = useState([]);
 
   const getFiles = async () => {
-      const res = await axios.post("/userFiles", {userId: userAddress.current});
+      const res = await axios.post("/userFiles", {userId: userAddress});
       setFiles(res.data.files)
   }
 
@@ -17,7 +17,7 @@ export default function UserFiles(props) {
         <button onClick={getFiles}>Reload</button>
         <ul>
           {files.map((f) => 
-            <FileLink fileName={f} id={userAddress.current}/>
+            <FileLink fileName={f} id={userAddress}/>
           )}
         </ul>
     </div>

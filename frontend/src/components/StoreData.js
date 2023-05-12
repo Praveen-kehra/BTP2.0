@@ -62,7 +62,7 @@ const StoreData = () => {
 
                 setTimeout(() => {
                     socketRef.current.emit('id', JSON.stringify({
-                        content : id
+                        content : userId
                     }))
                 }, 1000)
             })
@@ -109,7 +109,7 @@ const StoreData = () => {
 
             window.addEventListener('beforeunload', (event) => {
                 socketRef.current.emit('beforeConnectionClose', JSON.stringify({
-                    content: id
+                    content: userId
             }))
 
                 socketRef.current.disconnect()
@@ -119,10 +119,10 @@ const StoreData = () => {
 
     return (
         <div className="StoreData">
-            <UploadData id={id} />
+            <UploadData id={userId} />
             <button onClick = {onClickHandler}>Grant Permissions</button>
-            <button onClick = {retrieveFile}>Retrieve File</button>
-            <UserFiles userAddress={id} />
+            {/* <button onClick = {retrieveFile}>Retrieve File</button> */}
+            <UserFiles userAddress={userId} />
         </div>
     )
 }

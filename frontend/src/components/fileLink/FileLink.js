@@ -3,14 +3,14 @@ import axios from 'axios'
 import { useState, useRef } from 'react'
 
 export default function FileLink(props) {
-  const fileName = useRef(props.fileName)
-  const userAddress = useRef(props.id)
+  const fileName = props.fileName
+  const userAddress = props.id
   const [data, setdata] = useState('')
 
   const handleLoad = async () => {
     const res = await axios.post('/retrieveFile', {
-      id : userAddress.current,
-      name : fileName.current
+      id : userAddress,
+      name : fileName
     })
 
     console.log(res)
@@ -19,7 +19,7 @@ export default function FileLink(props) {
 
   return (
     <div className="FileLink">
-      <div>{fileName.current}</div>
+      <div>{fileName}</div>
       <button onClick={handleLoad}>Load Data</button>
       <textarea value={data}/>
     </div>
