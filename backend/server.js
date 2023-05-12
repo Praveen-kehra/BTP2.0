@@ -130,9 +130,15 @@ function distributeData(userId, dataStore, fileName) {
             const node = queue[queue.length - 1]
             queue.pop()
 
+            if(maxLimit.get(node) < current.get(node) + shardSize) {
+                queue.unshift(node)
+                continue
+            }
+
             const nodeSocket = clients.get(node)
 
             nodeSocket.emit('storeData', JSON.stringify(shard))
+            current.set(node, parseInt(current.get(node) + shardSize))
 
             if(shardLocate.has(shardId) == false) {
                 shardLocate.set(shardId, [])
