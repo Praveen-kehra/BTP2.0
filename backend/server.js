@@ -64,11 +64,11 @@ async function interactWithContract(methodToCall, ...args) {
     const web3 = new Web3(provider)
     const myContract = new web3.eth.Contract(ABI, SmartContractAddress)
 
-    let receipt = myContract.methods[methodToCall](...args).send({
+    const receipt = await myContract.methods[methodToCall](...args).send({
         from : SenderAddress
     })
 
-    console.log(receipt)
+    return receipt
 }
 
 const app = express()
@@ -221,11 +221,11 @@ app.post("/sendToServer", async (req, res) => {
     if(user.includes(id) == false) {
         user.push(id);
 
-        let request = myContract.methods.addUser(id).send({
-            from : SenderAddress
-        })
+        // let request = myContract.methods.addUser(id).send({
+        //     from : SenderAddress
+        // })
 
-        console.log(request)
+        // console.log(request)
         
         //need to set some default value for maxLimit
         //setting it as 5MB
