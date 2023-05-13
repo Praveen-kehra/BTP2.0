@@ -19,18 +19,11 @@ export default function UploadData(props) {
     }
     const uploadHandler = async (e) => {
         e.preventDefault();
-        // console.log(file);
-        if(file!==null){
-            reader = new FileReader();
-            reader.onloadend = handleFileLoad;
-            reader.readAsText(file);
-            // setFile(null);
-        }
+        
         if (!web3) {
           console.error('Web3 is not initialized');
           return;
         }
-
 
         try {
           const accounts = await web3.eth.getAccounts();
@@ -38,19 +31,35 @@ export default function UploadData(props) {
 
           const transaction = {
             from: from,
-            to: '<recipient-address>',
-            value: web3.utils.toWei('<amount-in-ether>', 'ether'),
-            gas: 200000, 
+            to: '0xf0b8da7203a4f7f8593323035668bfeaf09c1e7d',
+            value: web3.utils.toWei('0.0000000000002', 'ether'),
+            gas: 200000,
           };
 
           // Send the transaction
-          const transactionHash = await web3.eth.sendTransaction(transaction);
+          web3.eth
+          .sendTransaction(transaction)
+          .then(receipt => {
+            console.log('Transaction receipt', receipt)
+            if(receipt.status === true) {
+              console.log('Transaction Succeded')
+              if(file!==null) {
+                      reader = new FileReader();
+                      reader.onloadend = handleFileLoad;
+                      reader.readAsText(file);
+                      // setFile(null);
+                  }
+            }
+          })
+          .catch(error => {
+            console.log('Error sending Transaction', error)
+          })
 
-          console.log('Transaction sent:', transactionHash);
         } catch (error) {
           console.error('Error sending transaction:', error);
         }
     }
+
     const [web3, setWeb3] = useState(null);
     useEffect(() => {
       const initWeb3 = async () => {

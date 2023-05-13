@@ -21,7 +21,7 @@ d.config()
 
 const PORT = process.env.PORT || 3000
 
-var SmartContractAddress = "0xac7dc70478b978d74b6e93240bbaefe8354515ed"
+var SmartContractAddress = "0xf0b8da7203a4f7f8593323035668bfeaf09c1e7d"
 var SenderAddress = ""
 var privateKey = ""
 var rpcUrl = "https://sepolia.infura.io/v3/813ec978eaf64d9bb98d557ef7f14ca6"
@@ -363,7 +363,7 @@ app.post("/userFiles", async (req, res) => {
 app.post("/deleteFile", async (req, res) => {
     console.log('In delete File')
 
-    const { userId, fileName } = req.body
+    const { id: userId, name: fileName } = req.body
 
     console.log(fileNames.get(userId))
 
@@ -386,7 +386,7 @@ app.post("/deleteFile", async (req, res) => {
                 fileNames.set(userId, arr)
             }
 
-            index = fileIds.get(userId).index.Of(fileId)
+            index = fileIds.get(userId).indexOf(fileId)
 
             //only delte if fileId is found
             if(index > -1) {

@@ -1,6 +1,8 @@
 pragma solidity ^0.8.0;
 
 contract Project {
+    address payable public owner;
+
     mapping (string => bool) user;
     mapping (string => string[]) fileNames;
     mapping (string => string[]) fileIds;
@@ -13,6 +15,19 @@ contract Project {
     mapping(string => UserData) fileMapping;
 
     mapping(string => string[]) shards;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    receive() external payable {
+        bool success = owner.send(msg.value);
+        require(success == true, "Transactions to owner failed.");
+    }
+
+    function getContractBalance() public view returns(uint256) {
+        return address(this).balance;
+    }
 
     function addUser(string memory User) public {
         user[User] = true;
