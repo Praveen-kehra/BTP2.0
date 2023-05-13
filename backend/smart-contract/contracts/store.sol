@@ -1,56 +1,49 @@
 pragma solidity ^0.8.0;
 
 contract Project {
+    mapping (string => bool) user;
+    mapping (string => string[]) fileNames;
+    mapping (string => string[]) fileIds;
 
-    struct userData {
-        uint storageOffered;
-        uint numFiles;
-        uint balanceFromUser;
-        mapping(string => string) file_Ids;   
+    //used as value for fileMapping with userId as key
+    struct UserData {
+        mapping(string => string) fileNameToFileId;
     }
 
-    uint fileCost = 200;
+    mapping(string => UserData) fileMapping;
 
-    mapping(address => userData) public users;
+    mapping(string => string[]) shards;
+
+    function addUser(string memory User) public {
+        user[User] = true;
+    }
+
+    function checkUserExists(string memory User) public view returns(bool) {
+        if(user[User] == true) return true;
+        else return false;
+    }
     
-    mapping(string => string[]) public shardLocations;
-
-    address payable public owner;
-
-    constructor() {
-        owner = payable(msg.sender);
+    function addFileName(string memory User, string memory FileName) public {
+        fileNames[User].push(FileName);
     }
 
-    //we assume that the ethereum address of the user uniquely identifies them from a specific system
-
-    function addUser(address user) public {
-        users[user].storageOffered = 0;
+    function viewFileName(string memory User) public view returns(string[] memory) {
+        return fileNames[User];
     }
 
-    function receive() external payable {
-        users[msg.sender].balanceFromUser += msg.value;
-
-        uint contractBalance = address(this).balance;
-
-        owner.transfer(contractBalance);
+    function addFileId(string memory User, string memory FileId) public {
+        fileIds[User].push(FileId);
     }
 
-    function changeStorageOffered(address user, uint storageInMB) public {
-        users[user].storageOffered = storageInMB;
+    function viewFileIds(string memory User) public view returns(string[] memory) {
+        return fileIds[User];
     }
 
-    function addFile(address user, string memory file_Id, string memory fileHash) public {
-        require(users[user].balanceFromUser >= (users[user].numFiles + 1) * fileCost, "Not enough balance to store the file.");
-
-        users[user].file_Ids[file_Id] = fileHash;
-        users[user].numFiles++;
+    function addFilesToUserInFileMapping(string memory User, string memory FileName, string memory FileId) public {
+        fileMapping[User].fileNameToFileId[FileName] = FileId;
     }
 
-    function viewFileHash(string memory file_Id) public returns(string memory) {
-        return users[msg.sender].file_Ids[file_Id];
-    }
-
-    function addShardLocation(string memory file_Id, string memory shardLocation) public {
-        shardLocations[file_Id].push(shardLocation);
+    function viewFileMapping(string memory User, string memory FileName) public view returns(string memory) {
+        return fileMapping[User].fileNameToFileId[FileName];
     }
 }

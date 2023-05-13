@@ -17,10 +17,21 @@ export default function FileLink(props) {
     setdata(res.data.message)
   }
 
+  const handleDelete = async () => {
+    const res = await axios.post('/deleteFile', {
+      id: userAddress,
+      name : fileName
+    })
+
+    console.log(res)
+    setdata('')
+  }
+
   return (
     <div className="FileLink">
       <div>{fileName}</div>
       <button onClick={handleLoad}>Load Data</button>
+      <button onClick={handleDelete}>Delete File</button>
       <textarea value={data}/>
     </div>
   )

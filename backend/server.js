@@ -8,6 +8,10 @@ import bodyParser from 'body-parser'
 import sha256 from 'crypto-js/sha256.js'
 import CryptoJS from 'crypto-js'
 import sizeof from 'object-sizeof'
+import Web3 from 'web3'
+import Provider from '@truffle/hdwallet-provider'
+import fs from 'fs'
+import solc from 'solc'
 
 import express from 'express'
 
@@ -17,7 +21,55 @@ d.config()
 
 const PORT = process.env.PORT || 3000
 
-// console.log(PORT)
+var SmartContractAddress = "0xac7dc70478b978d74b6e93240bbaefe8354515ed"
+var SenderAddress = ""
+var privateKey = ""
+var rpcUrl = "https://sepolia.infura.io/v3/813ec978eaf64d9bb98d557ef7f14ca6"
+
+const file = fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./smart-contract/contracts/store.sol")).toString()
+
+var input = {
+    language : "Solidity",
+    sources : {
+        "store.sol" : {
+            content : file,
+        },
+    },
+    settings : {
+        outputSelection : {
+            "*" : {
+                "*" : ["*"],
+            },
+        },
+    },
+}
+
+var output = JSON.parse(solc.compile(JSON.stringify(input)))
+// console.log(output)
+
+const ABI = output.contracts["store.sol"].Project.abi
+// console.log(ABI)
+
+//we need to put below code in a function and get which method to execute as argument to the function
+//these variable aren't made for prologned existence like socket variable
+
+// const provider = new Provider(privateKey, rpcUrl)
+// const web3 = new Web3(provider)
+// const myContract = new web3.eth.Contract(ABI, SmartContractAddress)
+
+// console.log(myContract.methods)
+
+async function interactWithContract(methodToCall, ...args) {
+    const provider = new Provider(privateKey, rpcUrl)
+    const web3 = new Web3(provider)
+    const myContract = new web3.eth.Contract(ABI, SmartContractAddress)
+
+    let receipt = myContract.methods[methodToCall](...args).send({
+        from : SenderAddress
+    })
+
+    console.log(receipt)
+}
 
 const app = express()
 const server = http.Server(app).listen(PORT, () => {
@@ -33,8 +85,10 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : false }))
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build')))
 
+//clients doesn't need to be on the blockchain
 var clients = new Map()
 
+//user is an array of all users
 var user = []
 
 //filesName is a map from users to an array of their files(file Names)
@@ -62,6 +116,7 @@ var dataStoreSizes = new Map();
 var maxLimit = new Map();
 
 //this stores how much data we have stored on some user's pc
+//from userId to current size of data stored on his computer
 var current = new Map();
 
 //only one file distribute query should be run at a time, so as to avoid
@@ -155,7 +210,7 @@ async function distributeData(userId, dataStore, fileName) {
     return true
 }
 
-app.post("/sendToServer", (req, res) => {
+app.post("/sendToServer", async (req, res) => {
     //data is in string format req.body.textData
     let dataStore = []
     let data = req.body.textData
@@ -165,10 +220,16 @@ app.post("/sendToServer", (req, res) => {
 
     if(user.includes(id) == false) {
         user.push(id);
+
+        let request = myContract.methods.addUser(id).send({
+            from : SenderAddress
+        })
+
+        console.log(request)
         
         //need to set some default value for maxLimit
         //setting it as 5MB
-
+        
         maxLimit.set(id, parseInt(5 * 1024 * 1024))
 
         current.set(id, parseInt(0))
@@ -215,7 +276,7 @@ app.post("/sendToServer", (req, res) => {
 
 var tempDataStore = []
 
-app.post('/retrieveFile', (req, res) => {
+app.post('/retrieveFile', async (req, res) => {
 
     tempDataStore = []
 
@@ -290,11 +351,59 @@ app.post('/retrieveFile', (req, res) => {
     }
 })
 
-app.post("/userFiles", (req, res) => {
+app.post("/userFiles", async (req, res) => {
     const userId = req.body.userId
-    return res.json(
-        {files: fileNames.get(userId)}
+    return res.json({
+        files: fileNames.get(userId),
+        mapping : Object.fromEntries(fileMapping.get(userId))
+    }
     );
+})
+
+app.post("/deleteFile", async (req, res) => {
+    console.log('In delete File')
+
+    const { userId, fileName } = req.body
+
+    console.log(fileNames.get(userId))
+
+    //later will also need to include code to ensure that all users having associated file shards
+    //delete those shards
+    //can skip that for now
+
+    //checking if user is actually in the user array
+    if(user.includes(userId) == true) {
+        const fileId = fileMapping.get(userId).get(fileName)
+
+        //checking if file actually exists in fileMapping
+        if(fileId) {
+            let index = fileNames.get(userId).indexOf(fileName)
+
+            //only delete if fileName is found
+            if(index > -1) {
+                let arr = fileNames.get(userId)
+                arr.splice(index, 1)
+                fileNames.set(userId, arr)
+            }
+
+            index = fileIds.get(userId).index.Of(fileId)
+
+            //only delte if fileId is found
+            if(index > -1) {
+                let arr = fileIds.get(userId)
+                arr.splice(index, 1)
+                fileIds.set(userId, arr)
+            }
+
+            fileMapping.get(userId).delete(fileName)
+        }
+    }
+
+    console.log(fileNames.get(userId))
+
+    res.json({
+        message : 'File successfully deleted from the network'
+    })
 })
 
 app.get("*", (req, res) => {
