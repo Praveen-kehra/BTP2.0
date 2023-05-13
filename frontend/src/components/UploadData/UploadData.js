@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import "./uploadData.css";
 import axios from 'axios';
 import Web3 from 'web3';
