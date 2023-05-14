@@ -16,6 +16,16 @@ contract Project {
 
     mapping(string => string[]) shards;
 
+    mapping(string => string[]) shardLocate;
+
+    mapping(string => string) shardHashes;
+
+    mapping(string => uint256) dataStoreSizes;
+
+    mapping(string => uint256) maxLimit;
+
+    mapping(string => uint256) current;
+
     constructor() {
         owner = payable(msg.sender);
     }
@@ -60,5 +70,53 @@ contract Project {
 
     function viewFileMapping(string memory User, string memory FileName) public view returns(string memory) {
         return fileMapping[User].fileNameToFileId[FileName];
+    }
+
+    function viewShards(string memory fileId) public view returns(string[] memory) {
+        return shards[fileId];
+    }
+
+    function addShard(string memory fileId, string memory shardId) public {
+        shards[fileId].push(shardId);
+    }
+
+    function viewShardLocate(string memory shardId) public view returns(string[] memory) {
+        return shardLocate[shardId];
+    }
+
+    function addShardLocate(string memory shardId, string memory nodeId) public {
+        shardLocate[shardId].push(nodeId);
+    }
+
+    function viewShardHash(string memory shardId) public view returns(string memory) {
+        return shardHashes[shardId];
+    }
+
+    function addShardHash(string memory shardId, string memory HASH) public {
+        shardHashes[shardId] = HASH;
+    }
+
+    function viewDataStoreSize(string memory fileId) public view returns(uint256) {
+        return dataStoreSizes[fileId];
+    }
+
+    function setDataStoreSize(string memory fileId, uint256 size) public {
+        dataStoreSizes[fileId] = size;
+    }
+
+    function viewMaxLimit(string memory userId) public view returns(uint256) {
+        return maxLimit[userId];
+    }
+
+    function setMaxLimit(string memory userId, uint256 limit) public {
+        maxLimit[userId] = limit;   
+    }
+
+    function viewCurrent(string memory userId) public view returns(uint256) {
+        return current[userId];
+    }
+
+    function setCurrent(string memory userId, uint256 c) public {
+        current[userId] = c;
     }
 }
