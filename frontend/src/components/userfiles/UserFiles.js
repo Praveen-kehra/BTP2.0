@@ -16,7 +16,6 @@ export default function UserFiles(props) {
 
   return (
     <div className="userfile-container">
-      <p>UserFiles</p>
         <button onClick={getFiles}>Reload</button>
         <ul>
           {files.map((f) => {

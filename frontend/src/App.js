@@ -1,6 +1,6 @@
 import Share from "./components/share/share";
 import Navbar from "./components/navbar/Navbar";
-import StoreData from './components/StoreData';
+import StoreData from './components/storeData/StoreData';
 import Permission from './components/Permission';
 
 import './App.css';

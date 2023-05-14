@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import io from 'socket.io-client'
-import UploadData from './UploadData/UploadData';
+import UploadData from '../UploadData/UploadData';
 import axios from 'axios'
-import UserFiles from './userfiles/UserFiles';
+import UserFiles from '../userfiles/UserFiles';
 import Web3 from 'web3';
+import "./storeData.css"
 
 const id = uuid().slice(0, 16);
 
@@ -138,18 +139,22 @@ const StoreData = () => {
     return (
         <div className="StoreData">
             <UploadData id={userId} />
-            <button onClick = {onClickHandler}>Grant Permissions</button>
+            <button className="storeBtn" onClick = {onClickHandler}>Grant Permissions</button>
             <button
+                className="storeBtn" 
                 onClick={showInput}
                 >Change Storage Allowed</button>
+                <br />    
             <input
                 type="text"
                 style={{
-                    display: changeButtonStatus
+                    display: changeButtonStatus,
+                    height: "30px"
                 }}
                 onKeyDown={handleKeyPress}
                 />
             {/* <button onClick = {retrieveFile}>Retrieve File</button> */}
+            <hr class="hr-text" data-content="USER FILES"></hr>
             <UserFiles userAddress={userId} />
         </div>
     )
