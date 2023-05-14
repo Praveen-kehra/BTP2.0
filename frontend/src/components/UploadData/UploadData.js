@@ -10,11 +10,19 @@ export default function UploadData(props) {
     const handleFileLoad = async (event) => {
         const text = reader.result;
         console.log(file.name)
+        let startTime = new Date()
+
         const res = await axios.post("/sendToServer", {
             textData: text,
             id: props.id,
             name: file.name
         })
+
+        let endTime = new Date()
+
+        let timeElapsed = endTime - startTime
+
+        console.log('Time taken for uploading the file - ', timeElapsed)
         console.log(res)
     }
     const uploadHandler = async (e) => {

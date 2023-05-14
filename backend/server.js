@@ -51,7 +51,7 @@ const ABI = output.contracts["store.sol"].Project.abi
 // console.log(ABI)
 
 //we need to put below code in a function and get which method to execute as argument to the function
-//these variable aren't made for prologned existence like socket variable
+//these variables aren't made for prologned existence like socket variable
 
 // const provider = new Provider(privateKey, rpcUrl)
 // const web3 = new Web3(provider)
@@ -228,9 +228,9 @@ app.post("/sendToServer", async (req, res) => {
         // console.log(request)
         
         //need to set some default value for maxLimit
-        //setting it as 5MB
+        //setting it as 500MB
         
-        maxLimit.set(id, parseInt(5 * 1024 * 1024))
+        maxLimit.set(id, parseInt(500 * 1024 * 1024))
 
         current.set(id, parseInt(0))
     }
@@ -404,6 +404,15 @@ app.post("/deleteFile", async (req, res) => {
     res.json({
         message : 'File successfully deleted from the network'
     })
+})
+
+app.post("/changeMaxLimit", (req, res) => {
+    //size is in bytes
+    const {id : userId, new: newLimit} = req
+
+    console.log(newLimit)
+
+    maxLimit.set(userId, parseInt(newLimit))
 })
 
 app.get("*", (req, res) => {

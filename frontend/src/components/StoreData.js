@@ -14,10 +14,26 @@ const StoreData = () => {
     const socketRef = useRef(null)
     const folderHandle = useRef(null)
     const [userId, setUserId] = useState(null)
+    const [changeButtonStatus, setChangeButtonStatus] = useState(false)
 
     const onClickHandler = async () => {
         folderHandle.current = await window.showDirectoryPicker({ mode : 'readwrite' })
         console.log(folderHandle)
+    }
+
+    const handleKeyPress = async (event) => {
+        if(event.key === 'Enter'){
+            const res = await axios.post('/changeMaxLimit', {
+                id : userId,
+                new : event.target.value
+            })
+            console.log(res)
+            setChangeButtonStatus(false)
+        }
+    }
+
+    const showInput = async (event) => {
+        setChangeButtonStatus(true)
     }
 
     const retrieveFile = async () => {
@@ -121,6 +137,16 @@ const StoreData = () => {
         <div className="StoreData">
             <UploadData id={userId} />
             <button onClick = {onClickHandler}>Grant Permissions</button>
+            <button
+                onClick={showInput}
+                >Change Storage Allowed</button>
+            <input
+                type="text"
+                style={{
+                    display: changeButtonStatus
+                }}
+                onKeyDown={handleKeyPress}
+                />
             {/* <button onClick = {retrieveFile}>Retrieve File</button> */}
             <UserFiles userAddress={userId} />
         </div>
