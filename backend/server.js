@@ -388,7 +388,7 @@ app.post("/deleteFile", async (req, res) => {
 
             index = fileIds.get(userId).indexOf(fileId)
 
-            //only delte if fileId is found
+            //only delete if fileId is found
             if(index > -1) {
                 let arr = fileIds.get(userId)
                 arr.splice(index, 1)
