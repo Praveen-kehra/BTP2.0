@@ -22,13 +22,13 @@ export default function Share() {
 
   return (
     <div>
-      <textarea 
+      {/* <textarea 
         className='textInput' 
         type="text" 
         onChange={(e)=>{setInputText(e.target.value)}}
       >
         {inputText}
-      </textarea>
+      </textarea> */}
     </div>
   )
 }

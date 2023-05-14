@@ -11,11 +11,10 @@ export default function UploadData(props) {
         const text = reader.result;
         console.log(file.name)
         let startTime = new Date()
-
         const res = await axios.post("/sendToServer", {
-            textData: text,
-            id: props.id,
-            name: file.name
+          textData: text,
+          id: props.id,
+          name: file.name
         })
 
         let endTime = new Date()
@@ -52,17 +51,17 @@ export default function UploadData(props) {
             if(receipt.status === true) {
               console.log('Transaction Succeded')
               if(file!==null) {
-                      reader = new FileReader();
-                      reader.onloadend = handleFileLoad;
-                      reader.readAsText(file);
-                      // setFile(null);
-                  }
+                reader = new FileReader();
+                reader.onloadend = handleFileLoad;
+                reader.readAsText(file);
+                // setFile(null);
+              }
             }
           })
           .catch(error => {
             console.log('Error sending Transaction', error)
           })
-
+          
         } catch (error) {
           console.error('Error sending transaction:', error);
         }
@@ -109,9 +108,16 @@ export default function UploadData(props) {
                 type="file" id="file" 
                 accept=".txt" 
                 onChange={(e) => setFile(e.target.files[0])} 
-              />
+                />
             </label>
-            <button type="submit">Upload</button>
+            <br></br>
+              {file 
+                && 
+                <> 
+                  <br></br>
+                  <span className='spn'>{file.name}</span></>}
+              <br />
+            <button className='upload-button' type="submit">{ "Upload"}</button>
         </form>
     </div>
   )

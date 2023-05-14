@@ -42,7 +42,7 @@ export default function Navbar() {
         : <span className="connect-span">
             {!loggedIn 
               ? <button className='connect-button'>Connect</button> 
-              : address.substring(0, 6) + "..."
+              : address.substring(0, 10) + "..."
             }
           </span>
       }
