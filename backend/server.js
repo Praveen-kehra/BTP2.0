@@ -76,13 +76,15 @@ const server = http.Server(app).listen(PORT, () => {
     console.log('Listening on PORT ' + PORT)
 })
 
-const io = new Server(server)
+const io = new Server(server, {
+    maxHttpBufferSize: 5 * 1e8
+})
 
 const numChunks = 4
 const redundantFactor = 3
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended : false }))
+app.use(bodyParser.json({ limit : '500mb'}))
+app.use(bodyParser.urlencoded({ extended : false, limit : '500mb' }))
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../frontend/build')))
 
 //clients doesn't need to be on the blockchain
@@ -185,7 +187,7 @@ async function distributeData(userId, dataStore, fileName) {
             const node = queue[queue.length - 1]
             queue.pop()
 
-            if(maxLimit.get(node) < current.get(node) + shardSize) {
+            if(parseInt(maxLimit.get(node)) < parseInt(current.get(node)) + shardSize) {
                 queue.unshift(node)
                 continue
             }
@@ -193,7 +195,7 @@ async function distributeData(userId, dataStore, fileName) {
             const nodeSocket = clients.get(node)
 
             nodeSocket.emit('storeData', JSON.stringify(shard))
-            current.set(node, parseInt(current.get(node) + shardSize))
+            current.set(node, parseInt(parseInt(current.get(node)) + shardSize))
 
             if(shardLocate.has(shardId) == false) {
                 shardLocate.set(shardId, [])
@@ -204,6 +206,8 @@ async function distributeData(userId, dataStore, fileName) {
             queue.unshift(node)
 
             counter++
+
+            await new Promise(r => setTimeout(r, 2000));
         }
     }
 
@@ -214,9 +218,15 @@ app.post("/sendToServer", async (req, res) => {
     //data is in string format req.body.textData
     let dataStore = []
     let data = req.body.textData
+
     //id of sender
     const id = req.body.id
     const name = req.body.name
+
+    if(!data || !id || !name) {
+        console.log("PROBLEM")
+        return
+    }
 
     if(user.includes(id) == false) {
         user.push(id);
@@ -300,6 +310,8 @@ app.post('/retrieveFile', async (req, res) => {
         // console.log(shardId)
 
         for(const nodeId of shardLocate.get(shardId)) {
+            //could put sleep here to solve the problem
+
             // console.log("Ran")
             if(clients.has(nodeId) == true) {
                 const nodeSocket = clients.get(nodeId)
@@ -309,10 +321,12 @@ app.post('/retrieveFile', async (req, res) => {
                     //checking hashes of shards to maintain integrity of the file
                     const hash = sha256(JSON.stringify(data)).toString(CryptoJS.enc.Hex)
 
+                    console.log('callback being called', data)
+
                     let exists = false
 
                     for(let value of tempDataStore) {
-                        if(value.store === data.store) {
+                        if(value.position === data.position) {
                             exists = true
                             break
                         }
@@ -321,7 +335,10 @@ app.post('/retrieveFile', async (req, res) => {
                     if(hash == shardHashes.get(shardId) && exists == false) {
                         tempDataStore.push(data)
 
+                        console.log(tempDataStore)
+
                         if(tempDataStore.length == dataStoreSizes.get(fileId)) {
+                            console.log('got it')
                             //sort the tempDataStore first
                             tempDataStore.sort((first, second) => {
                                 let a = parseInt(first.position)
@@ -342,10 +359,13 @@ app.post('/retrieveFile', async (req, res) => {
                         }
                     } else if(hash != shardHashes.get(shardId)) {
                         //code for telling nodeSocket to delete the shard as it is corrupt
+                        console.log('corrupt hash')
                     }
                 })
 
                 nodeSocket.emit('serverRequestData', { id : shardId, callback : callback })
+
+                // await new Promise(r => setTimeout(r, 2000));
             }
         }
     }

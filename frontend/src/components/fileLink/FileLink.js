@@ -9,11 +9,15 @@ export default function FileLink(props) {
 
   const handleLoad = async () => {
     let startTime = new Date()
+    console.log(fileName)
+    console.log(userAddress)
 
     const res = await axios.post('/retrieveFile', {
       id : userAddress,
       name : fileName
     })
+
+    console.log(startTime)
 
     let endTime = new Date()
 

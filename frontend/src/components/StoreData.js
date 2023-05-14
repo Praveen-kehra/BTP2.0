@@ -105,6 +105,8 @@ const StoreData = () => {
                 const shardId = data.id
                 const callback = data.callback
 
+                // console.log('Called', callback)
+
                 if(folderHandle != null) {
                     try {
                         let fileHandle = await folderHandle.current.getFileHandle(shardId, { create : false })
