@@ -31,7 +31,7 @@ export default function UploadData(props) {
 
           const transaction = {
             from: from,
-            to: '0xf0b8da7203a4f7f8593323035668bfeaf09c1e7d',
+            to: '0x44082c46f2bb3cf529672e53d5c84f852051239e',
             value: web3.utils.toWei('0.0000000000002', 'ether'),
             gas: 200000,
           };

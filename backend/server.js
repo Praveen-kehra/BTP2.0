@@ -21,9 +21,9 @@ d.config()
 
 const PORT = process.env.PORT || 3000
 
-var SmartContractAddress = "0xf0b8da7203a4f7f8593323035668bfeaf09c1e7d"
-var SenderAddress = ""
-var privateKey = ""
+var SmartContractAddress = "0x44082c46f2bb3cf529672e53d5c84f852051239e"
+var SenderAddress = "0xaCB81a18fb398158ADA9552C9eB9AdB7F51e5e82"
+var privateKey = "887838706d2b254cea3cbf322ee00186ddc42665e015c4801fcfd5b21fd09801"
 var rpcUrl = "https://sepolia.infura.io/v3/813ec978eaf64d9bb98d557ef7f14ca6"
 
 const file = fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./smart-contract/contracts/store.sol")).toString()
@@ -288,7 +288,7 @@ app.post('/retrieveFile', async (req, res) => {
         return
     }
 
-    if(fileMapping.get(userId).has(fileName) == false) {
+    if(fileNames.get(userId).includes(fileName) == false) {
         res.json({ message : 'Cannot find the specified file.'})
         return
     }
