@@ -4,10 +4,13 @@ import axios from 'axios';
 import Web3 from 'web3';
 
 export default function UploadData(props) {
+    const [loader, setLoader] = useState(false);
     console.log(props);
     const [file, setFile] = useState(null);
     let reader;
     const handleFileLoad = async (event) => {
+      try{
+        // setLoader(true);
         const text = reader.result;
         console.log(file.name)
         let startTime = new Date()
@@ -16,13 +19,18 @@ export default function UploadData(props) {
           id: props.id,
           name: file.name
         })
-
+        
         let endTime = new Date()
-
+        
         let timeElapsed = endTime - startTime
-
+        
         console.log('Time taken for uploading the file - ', timeElapsed)
         console.log(res)
+        // setLoader(false);
+      } catch(err){
+        setLoader(false);
+        console.log(err);
+      }
     }
     const uploadHandler = async (e) => {
         e.preventDefault();
@@ -33,16 +41,17 @@ export default function UploadData(props) {
         }
 
         try {
+          setLoader(true);
           const accounts = await web3.eth.getAccounts();
           const from = accounts[0];
-
+          
           const transaction = {
             from: from,
             to: '0x44082c46f2bb3cf529672e53d5c84f852051239e',
             value: web3.utils.toWei('0.0000000000002', 'ether'),
             gas: 200000,
           };
-
+          
           // Send the transaction
           web3.eth
           .sendTransaction(transaction)
@@ -59,10 +68,13 @@ export default function UploadData(props) {
             }
           })
           .catch(error => {
+            setLoader(false);
             console.log('Error sending Transaction', error)
           })
+          setLoader(true);
           
         } catch (error) {
+          setLoader(false);
           console.error('Error sending transaction:', error);
         }
     }
@@ -117,7 +129,7 @@ export default function UploadData(props) {
                   <br></br>
                   <span className='spn'>{file.name}</span></>}
               <br />
-            <button className='upload-button' type="submit">{ "Upload"}</button>
+            <button className='upload-button' type="submit">{loader ? "uploading..." : "Upload"}</button>
         </form>
     </div>
   )
