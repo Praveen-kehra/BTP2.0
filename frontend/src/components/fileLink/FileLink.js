@@ -1,6 +1,7 @@
 import React from 'react'
 import axios from 'axios'
 import { useState, useRef } from 'react'
+import './Filelink.css'
 
 export default function FileLink(props) {
   const fileName = props.fileName
@@ -49,10 +50,10 @@ export default function FileLink(props) {
 
   return (
     <div className="FileLink">
-      <div>{fileName}</div>
-      <button onClick={handleLoad}>Load Data</button>
-      <button onClick={handleDelete}>Delete File</button>
-      <textarea value={data}/>
+      <div className="fileName">{fileName}</div>
+      <button onClick={handleLoad} className="button">Load Data</button>
+      <button onClick={handleDelete} className="button">Delete File</button>
+      <textarea className="displayFile" value={data}/>
     </div>
   )
 }

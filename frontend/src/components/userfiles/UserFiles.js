@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react'
 import FileLink from '../fileLink/FileLink';
 import axios from 'axios';
 
+import './userFiles.css';
+
 export default function UserFiles(props) {
   const userAddress = props.userAddress
   const [files, setFiles] = useState([]);
@@ -16,7 +18,7 @@ export default function UserFiles(props) {
 
   return (
     <div className="userfile-container">
-        <button onClick={getFiles}>Reload</button>
+        <button onClick={getFiles} className="button">Reload</button>
         <ul>
           {files.map((f) => {
             console.log(mapping[f])
