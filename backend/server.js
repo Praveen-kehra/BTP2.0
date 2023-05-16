@@ -64,11 +64,12 @@ async function interactWithContract(methodToCall, ...args) {
     const web3 = new Web3(provider)
     const myContract = new web3.eth.Contract(ABI, SmartContractAddress)
 
-    const receipt = await myContract.methods[methodToCall](...args).send({
+    myContract.methods[methodToCall](...args).send({
         from : SenderAddress
+    }).then(receipt => {
+        console.log('Sent Transaction to Smart Contract')
+        console.log(receipt)
     })
-
-    return receipt
 }
 
 const app = express()
@@ -234,6 +235,8 @@ app.post("/sendToServer", async (req, res) => {
         // let request = myContract.methods.addUser(id).send({
         //     from : SenderAddress
         // })
+
+        interactWithContract(addUser, id)
 
         // console.log(request)
         
