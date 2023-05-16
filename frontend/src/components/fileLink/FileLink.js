@@ -2,6 +2,7 @@ import React from 'react'
 import axios from 'axios'
 import { useState, useRef } from 'react'
 import './Filelink.css'
+import {decrypt} from '../EncryptDecrypt'
 
 export default function FileLink(props) {
   const fileName = props.fileName
@@ -27,7 +28,7 @@ export default function FileLink(props) {
     console.log('Time taken for file retrieval - ', timeElapsed)
 
     console.log(res)
-    setdata(res.data.message)
+    setdata(decrypt(res.data.message))
   }
 
   const handleDelete = async () => {
