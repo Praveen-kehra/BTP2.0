@@ -148,6 +148,7 @@ async function distributeData(userId, dataStore, fileName) {
     }
 
     fileIds.set(userId, [...fileIds.get(userId), fileId])
+    // interactWithContract('addFileId', userId, fileId)
 
     fileNames.set(userId, [...fileNames.get(userId), fileName])
 
@@ -236,7 +237,7 @@ app.post("/sendToServer", async (req, res) => {
         //     from : SenderAddress
         // })
 
-        interactWithContract(addUser, id)
+        interactWithContract('addUser', id)
 
         // console.log(request)
         
