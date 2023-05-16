@@ -374,8 +374,9 @@ app.post('/retrieveFile', async (req, res) => {
 app.post("/userFiles", async (req, res) => {
     const userId = req.body.userId
     let m = fileMapping.get(userId)
+    let f = fileNames.get(userId)
     return res.json({
-        files: fileNames.get(userId),
+        files: (f ? f : []),
         mapping : Object.fromEntries(m ? m : new Map())
     }
     );
