@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import "./uploadData.css";
 import axios from 'axios';
 import Web3 from 'web3';
+import {encrypt} from '../EncryptDecrypt'
 
 export default function UploadData(props) {
     const [loader, setLoader] = useState(false);
@@ -15,7 +16,7 @@ export default function UploadData(props) {
         console.log(file.name)
         let startTime = new Date()
         const res = await axios.post("/sendToServer", {
-          textData: text,
+          textData: encrypt(text),
           id: props.id,
           name: file.name
         })
@@ -26,6 +27,8 @@ export default function UploadData(props) {
         
         console.log('Time taken for uploading the file - ', timeElapsed)
         console.log(res)
+
+        setLoader(false)
         // setLoader(false);
       } catch(err){
         setLoader(false);
